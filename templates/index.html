@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>片刻 · Telegram 貼圖工作室</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <header><a class="brand" href="/">片刻<span>STICKER STUDIO</span></a><span class="local"><i></i> 在你的電腦上製作</span></header>
+  <main>
+    <section class="intro"><div><p class="eyebrow">把喜歡的瞬間，留下來。</p><h1>一段影片，一張貼圖。</h1><p class="subtitle">選片段、移動取景框，讓每個表情剛剛好。</p></div><div class="spec">WEBM / VP9<span>最長 3 秒 · 512 px · 無聲</span></div></section>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <div class="workspace">
+      <aside class="library panel"><div class="section-title"><h2><span>01</span> 選擇影片</h2><button id="refresh" class="small">重新掃描</button></div><p class="hint">把影片放進資料夾，再重新掃描。</p><div id="videoList" class="video-list"></div><p id="libraryStatus" class="hint"></p></aside>
+      <section class="editor panel">
+        <div class="section-title"><h2><span>02</span> 選取你的瞬間</h2><span id="dimensions" class="hint"></span></div>
+        <div id="stage" class="stage">
+          <div id="emptyStage" class="empty-stage"><div class="play-symbol">▷</div><p>從左側選擇影片</p><span>直接播放原片，不必先匯出圖檔。</span></div>
+          <div id="viewport" class="viewport" hidden><video id="video" preload="metadata" playsinline></video><img id="still" alt="原片精準影格" hidden><div id="cropBox" class="crop-box" role="slider" tabindex="0" aria-label="拖曳裁切框，或用方向鍵微調"><span>正方形取景</span><i class="crosshair"></i></div></div>
+        </div>
+        <div class="playback"><button id="play" class="small" disabled>▶ 播放</button><button id="playRange" class="small" disabled>↻ 播放選取片段</button><span id="playTime">00:00.000</span><button id="fallback" class="small" disabled>轉換播放格式</button></div>
+        <div id="indexStatus" class="hint index-status">選擇影片後，即可拖曳時間軸。</div>
+        <fieldset id="rangeControls" disabled>
+          <div class="timeline"><div class="timeline-track"><div id="rangeBand"></div><div id="playhead"></div></div><label>起點<input id="startRange" aria-label="片段起點時間軸" type="range" min="0" max="1" step="0.001" value="0"></label><label>終點<input id="endRange" aria-label="片段終點時間軸" type="range" min="0" max="1" step="0.001" value="1"></label><div class="timeline-labels"><span>00:00</span><span id="totalTime">00:00</span></div></div>
+          <div class="endpoints">
+            <div class="endpoint"><div class="endpoint-heading"><strong>開始</strong><button id="markStart" class="link-button">使用播放位置</button></div><label class="number-label">秒數<input id="startTime" type="number" min="0" step="0.001" value="0"></label><div class="frame-row"><button id="startPrev" title="起點上一格">−</button><label>第 <input id="startFrame" type="number" min="1" step="1" value="1"> 格</label><button id="startNext" title="起點下一格">＋</button></div><button id="viewStart" class="link-button">查看起點影格</button></div>
+            <div class="endpoint"><div class="endpoint-heading"><strong>結束</strong><button id="markEnd" class="link-button">使用播放位置</button></div><label class="number-label">秒數<input id="endTime" type="number" min="0" step="0.001" value="1"></label><div class="frame-row"><button id="endPrev" title="終點上一格">−</button><label>第 <input id="endFrame" type="number" min="1" step="1" value="1"> 格</label><button id="endNext" title="終點下一格">＋</button></div><button id="viewEnd" class="link-button">查看終點影格</button></div>
+          </div><p class="hint range-note">包含起點與終點影格；結束秒數顯示終點影格播完的位置。</p>
+        </fieldset>
+      </section>
+      <aside class="settings panel"><div class="section-title"><h2><span>03</span> 完成貼圖</h2></div><fieldset id="settingsControls" disabled>
+        <label class="field-label">畫面比例</label><div class="segmented"><button id="squareMode" class="active" aria-pressed="true">正方形</button><button id="originalMode" aria-pressed="false">原始比例</button></div>
+        <div id="cropControls"><label class="field-label" id="cropLabel" for="cropOffset">左側裁切像素</label><div class="crop-value"><input id="cropOffset" type="number" min="0" step="1" value="0"><span>px</span></div><input id="cropRange" aria-label="裁切位置" type="range" min="0" max="1" step="1" value="0"><div class="presets"><button id="alignStart">靠左</button><button id="alignCenter">置中</button><button id="alignEnd" class="active">靠右</button></div><p class="hint">拖曳畫面上的框，也能移動取景。</p></div>
+        <label class="field-label" for="speed">播放速度</label><div class="speed-value"><input id="speed" type="number" min="0.001" step="0.1" value="1"><span>×</span></div><div class="presets speed-presets"><button data-speed="0.5">0.5×</button><button data-speed="1" class="active">1×</button><button data-speed="1.5">1.5×</button><button data-speed="2">2×</button></div>
+        <div class="summary"><div><span>成品長度</span><strong id="outputDuration">—</strong></div><div><span>輸出尺寸</span><strong id="outputSize">512 × 512</strong></div><div><span>選取影格</span><strong id="selectedFrames">—</strong></div></div><p id="durationWarning" class="warning" hidden></p><button id="makeSticker" class="primary" disabled>製作貼圖 <span>↗</span></button>
+      </fieldset><div id="jobStatus" class="job-status" hidden><progress id="jobProgress" max="100" value="0"></progress><p id="jobMessage"></p></div>
+      <div id="result" class="result" hidden><span class="eyebrow">你的貼圖完成了</span><video id="resultVideo" autoplay loop muted controls playsinline></video><p id="resultDetails" class="hint"></p><a id="download" class="primary download" download>下載 .webm ↓</a><p class="hint">可將檔案交給 Telegram 的 @Stickers 建立影片貼圖。</p></div>
+      </aside>
+    </div>
+    <footer><span>所有影片與成品都留在本機。</span><span>拖曳選取 · 逐格微調 · 原片輸出</span></footer>
+  </main>
+</body>
+</html>

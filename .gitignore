@@ -1,0 +1,14 @@
+.venv/
+venv/
+.cache/
+stickers/
+__pycache__/
+*.pyc
+.DS_Store
+/.pytest_cache/
+/*.mp4
+/*.downiepart/
+/*.ts.part
+/*.mp4.part
+/*.mp4.segments/
+/*.mp4.lock
